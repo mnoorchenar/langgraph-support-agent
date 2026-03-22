@@ -21,7 +21,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--body-bg);color
 .nav-session{font-size:.7rem;color:var(--muted);font-family:monospace}
 .btn-icon{width:32px;height:32px;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.2s;font-size:.9rem}
 .btn-icon:hover{background:var(--hover-bg);color:var(--accent);border-color:var(--hover-border)}
-.app-body{display:grid;grid-template-columns:232px 1fr 316px;height:calc(100vh - 52px);margin-top:52px;overflow:hidden}
+.app-body{display:grid;grid-template-columns:1fr 3fr 1fr;height:calc(100vh - 52px);margin-top:52px;overflow:hidden}
 .sidebar{background:var(--sb-bg);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;gap:0;overflow-y:auto;padding:14px 10px;transition:background .3s}
 .panel{background:var(--panel-bg);border-left:1px solid var(--glass-border);display:flex;flex-direction:column;transition:background .3s}
 .sb-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;padding:0 4px;margin-bottom:7px}
@@ -175,7 +175,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--body-bg);color
       <div class="welcome" id="welcomeScreen">
         <div class="welcome-icon">🤖</div>
         <div class="welcome-title">TechStore Support Agent</div>
-        <p class="welcome-sub">Powered by LangGraph ReAct + HuggingFace Inference API. I can look up orders, search FAQs, create tickets, and more.</p>
+        <p class="welcome-sub"><strong>Ask me anything about TechStore!</strong><br/>I can search FAQs 📖, check order status 📦, get product info 🛍️, create support tickets 🎫, or connect you to a human agent 👤.</p>
         <div class="welcome-chips">
           <div class="wchip" onclick="fill(this.textContent)">What is your return policy?</div>
           <div class="wchip" onclick="fill(this.textContent)">Where is my order ORD-482910?</div>
