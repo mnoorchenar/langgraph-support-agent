@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//mnt/e/HuggingFace/**)",
+      "Bash(python3:*)"
+    ]
+  }
+}

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LangGraph Support Agent Studio</title>
+<script>document.documentElement.setAttribute('data-theme',localStorage.getItem('lgsa-theme')||'dark')</script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070d1f'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='36'%3E🤖%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{--accent:#4f8ef7;--gold:#f59e0b;--teal:#06b6d4;--green:#22c55e;--red:#ef4444;--purple:#a78bfa;--radius:12px;--body-bg:#070d1f;--text:#e2e8f0;--muted:#8892a4;--glass:rgba(255,255,255,.04);--glass-border:rgba(255,255,255,.08);--hover-bg:rgba(255,255,255,.07);--hover-border:rgba(79,142,247,.3);--nav-bg:rgba(7,13,31,.92);--sb-bg:#0b1120;--panel-bg:#0b1120;--input-bg:rgba(255,255,255,.06);--msg-u:rgba(79,142,247,.15);--msg-a:rgba(255,255,255,.04)}
+[data-theme="light"]{--body-bg:#f1f5f9;--text:#0f172a;--muted:#4b5675;--glass:rgba(0,0,0,.03);--glass-border:rgba(0,0,0,.1);--hover-bg:rgba(0,0,0,.05);--hover-border:rgba(37,99,235,.25);--nav-bg:rgba(241,245,249,.95);--sb-bg:#e8edf5;--panel-bg:#e8edf5;--input-bg:rgba(0,0,0,.05);--msg-u:rgba(37,99,235,.1);--msg-a:rgba(0,0,0,.03)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--body-bg);color:var(--text);height:100vh;overflow:hidden;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(79,142,247,.3);border-radius:3px}
+.navbar{position:fixed;top:0;left:0;right:0;height:52px;z-index:100;background:var(--nav-bg);border-bottom:1px solid var(--glass-border);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:12px}
+.nav-logo{display:flex;align-items:center;gap:9px;font-weight:900;font-size:.95rem}
+.nav-logo-text{background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-badge{font-size:.65rem;padding:2px 8px;border-radius:20px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.25);color:var(--accent);font-weight:700}
+.nav-spacer{flex:1}
+.nav-session{font-size:.7rem;color:var(--muted);font-family:monospace}
+.btn-icon{width:32px;height:32px;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.2s;font-size:.9rem}
+.btn-icon:hover{background:var(--hover-bg);color:var(--accent);border-color:var(--hover-border)}
+.app-body{display:grid;grid-template-columns:232px 1fr 316px;height:calc(100vh - 52px);margin-top:52px;overflow:hidden}
+.sidebar{background:var(--sb-bg);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;gap:0;overflow-y:auto;padding:14px 10px;transition:background .3s}
+.panel{background:var(--panel-bg);border-left:1px solid var(--glass-border);display:flex;flex-direction:column;transition:background .3s}
+.sb-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;padding:0 4px;margin-bottom:7px}
+.sb-section{margin-bottom:14px}
+.model-select{width:100%;padding:8px 10px;border-radius:var(--radius);background:var(--input-bg);border:1px solid var(--glass-border);color:var(--text);font-size:.8rem;font-family:inherit;cursor:pointer;outline:none;transition:.2s}
+.model-select:focus{border-color:var(--accent)}
+.mbadge-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.mbadge{font-size:.65rem;padding:2px 8px;border-radius:20px;background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.2);color:var(--accent);font-weight:600}
+.stat-mini{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--glass);border:1px solid var(--glass-border);border-radius:8px;font-size:.76rem;margin-bottom:5px}
+.stat-mini-key{color:var(--muted)}
+.stat-mini-val{font-weight:700;color:var(--accent)}
+.btn-new{width:100%;padding:9px;border-radius:var(--radius);background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);color:var(--accent);font-size:.8rem;font-weight:700;cursor:pointer;transition:.2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-new:hover{background:rgba(79,142,247,.2);transform:translateY(-1px)}
+.agent-status{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);font-size:.76rem}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;transition:.3s}
+.sdot.thinking{background:var(--gold);animation:pulse-dot 1s infinite}
+.sdot.error{background:var(--red)}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.qchip{display:block;padding:6px 9px;background:var(--glass);border:1px solid var(--glass-border);border-radius:7px;font-size:.75rem;cursor:pointer;margin-bottom:5px;color:var(--text);transition:.2s}
+.qchip:hover{background:var(--hover-bg);border-color:var(--hover-border);color:var(--accent)}
+.chat-main{display:flex;flex-direction:column;overflow:hidden;background:var(--body-bg);transition:background .3s}
+.messages{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:9px;max-width:88%;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg.assistant{align-self:flex-start}
+.msg-av{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;margin-top:2px}
+.msg.user .msg-av{background:rgba(79,142,247,.2)}
+.msg.assistant .msg-av{background:rgba(34,197,94,.15)}
+.msg-bubble{padding:11px 14px;border-radius:11px;font-size:.86rem;line-height:1.65;word-break:break-word}
+.msg.user .msg-bubble{background:var(--msg-u);border:1px solid rgba(79,142,247,.2);border-top-right-radius:3px}
+.msg.assistant .msg-bubble{background:var(--msg-a);border:1px solid var(--glass-border);border-top-left-radius:3px}
+.msg-meta{font-size:.65rem;color:var(--muted);margin-top:3px;display:flex;gap:7px}
+.msg.user .msg-meta{justify-content:flex-end}
+.msg-streaming .msg-bubble{border-color:rgba(79,142,247,.35)}
+.cursor{display:inline-block;width:2px;height:1em;background:var(--accent);margin-left:2px;animation:blink .7s infinite;vertical-align:text-bottom}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;text-align:center;color:var(--muted)}
+.welcome-icon{font-size:2.8rem}
+.welcome-title{font-size:1.05rem;font-weight:800;color:var(--text)}
+.welcome-sub{font-size:.82rem;line-height:1.6;max-width:340px}
+.welcome-chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:6px}
+.wchip{padding:6px 13px;border-radius:20px;font-size:.76rem;background:var(--glass);border:1px solid var(--glass-border);cursor:pointer;transition:.2s;color:var(--text)}
+.wchip:hover{background:var(--hover-bg);border-color:var(--hover-border);color:var(--accent)}
+.input-area{padding:10px 14px;border-top:1px solid var(--glass-border);display:flex;gap:9px;align-items:flex-end}
+.input-wrap{flex:1}
+#msgInput{width:100%;padding:10px 13px;border-radius:var(--radius);background:var(--input-bg);border:1px solid var(--glass-border);color:var(--text);font-size:.86rem;font-family:inherit;resize:none;outline:none;transition:.2s;max-height:120px;min-height:42px;line-height:1.5}
+#msgInput:focus{border-color:var(--accent)}
+#msgInput::placeholder{color:var(--muted)}
+.btn-send{width:42px;height:42px;border-radius:var(--radius);background:var(--accent);border:none;color:#fff;font-size:.95rem;cursor:pointer;transition:.2s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.btn-send:hover{background:#3b7ef0;transform:translateY(-1px)}
+.btn-send:disabled{background:rgba(79,142,247,.3);cursor:not-allowed;transform:none}
+.tab-bar{display:flex;border-bottom:1px solid var(--glass-border);padding:0 6px;flex-shrink:0}
+.tab-btn{flex:1;padding:11px 2px;font-size:.68rem;font-weight:700;text-align:center;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:.2s;text-transform:uppercase;letter-spacing:.04em}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{flex:1;overflow-y:auto;padding:12px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.graph-flow{display:flex;align-items:center;gap:0;padding:12px 6px;overflow-x:auto;margin-bottom:10px}
+.gn{min-width:64px;padding:9px 7px;border-radius:9px;text-align:center;border:2px solid var(--glass-border);background:var(--glass);transition:all .3s}
+.gn-icon{font-size:1.2rem;line-height:1;margin-bottom:3px}
+.gn-label{font-size:.6rem;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.gn-dur{font-size:.58rem;color:var(--muted)}
+.gn-arrow{padding:0 3px;color:var(--muted);font-size:.75rem;display:flex;align-items:center;flex-shrink:0}
+.gn.pending{opacity:.35}
+.gn.running{border-color:var(--accent);background:rgba(79,142,247,.1);animation:node-pulse 1.2s infinite}
+.gn.completed{border-color:var(--green);background:rgba(34,197,94,.08)}
+.gn.completed .gn-label{color:var(--green)}
+@keyframes node-pulse{0%,100%{box-shadow:0 0 0 0 rgba(79,142,247,.5)}60%{box-shadow:0 0 0 6px rgba(79,142,247,0)}}
+.trace-entry{display:flex;align-items:center;gap:9px;padding:7px 9px;background:var(--glass);border:1px solid var(--glass-border);border-radius:7px;font-size:.73rem;margin-bottom:5px}
+.trace-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.trace-name{font-weight:700;color:var(--text);flex:1}
+.trace-dur{color:var(--muted);font-family:monospace;font-size:.68rem}
+.tool-entry{border-radius:9px;border:1px solid var(--glass-border);background:var(--glass);margin-bottom:7px;overflow:hidden}
+.tool-entry:hover{border-color:var(--hover-border)}
+.tool-header{display:flex;align-items:center;gap:7px;padding:9px 11px;cursor:pointer}
+.tool-icon{font-size:1rem;flex-shrink:0}
+.tool-name{font-weight:800;font-size:.8rem;flex:1;color:var(--text)}
+.tool-lat{font-size:.68rem;color:var(--muted);font-family:monospace}
+.tool-chevron{color:var(--muted);font-size:.7rem;transition:.2s}
+.tool-entry.open .tool-chevron{transform:rotate(90deg)}
+.tool-body{display:none;padding:0 11px 11px;font-size:.76rem}
+.tool-entry.open .tool-body{display:block}
+.tool-slabel{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin:7px 0 3px}
+.tool-pre{background:rgba(0,0,0,.2);border-radius:5px;padding:7px;font-family:monospace;color:var(--text);line-height:1.5;white-space:pre-wrap;font-size:.72rem;max-height:110px;overflow-y:auto}
+[data-theme="light"] .tool-pre{background:rgba(0,0,0,.05)}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.stat-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:9px;padding:11px;text-align:center}
+.stat-card-val{font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:2px}
+.stat-card-lbl{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chart-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:12px 0 7px}
+.chart-wrap{height:150px;position:relative}
+.hist-entry{padding:9px 11px;background:var(--glass);border:1px solid var(--glass-border);border-radius:7px;margin-bottom:6px;font-size:.76rem;line-height:1.6}
+.hist-role{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.hist-role.user{color:var(--accent)}
+.hist-role.assistant{color:var(--green)}
+.hist-content{color:var(--text);white-space:pre-wrap;word-break:break-word}
+.hist-meta{display:flex;gap:7px;margin-top:5px;font-size:.62rem;color:var(--muted)}
+.empty-state{text-align:center;padding:28px 14px;color:var(--muted);font-size:.8rem}
+.empty-icon{font-size:1.8rem;margin-bottom:7px}
+.err-toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;padding:9px 18px;border-radius:9px;font-size:.82rem;font-weight:600;z-index:999;animation:fadeUp .3s ease}
+@media(max-width:900px){.app-body{grid-template-columns:0 1fr 0}.sidebar{display:none}.panel{display:none}}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-logo"><span style="font-size:1.25rem">🤖</span><span class="nav-logo-text">LangGraph Support Agent Studio</span></div>
+  <span class="nav-badge">ReAct · LangGraph 0.2</span>
+  <div class="nav-spacer"></div>
+  <span class="nav-session" id="sessionBadge">—</span>
+  <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme"><i class="fas fa-circle-half-stroke"></i></button>
+</nav>
+
+<div class="app-body">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Model</div>
+      <select class="model-select" id="modelSelect" onchange="updateBadge()">
+        {% for m in models %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}
+      </select>
+      <div class="mbadge-row" id="mbadgeRow">
+        {% for m in models %}<span class="mbadge" data-mid="{{ m.id }}" style="display:none">{{ m.badge }}</span>{% endfor %}
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Agent Status</div>
+      <div class="agent-status"><div class="sdot" id="sdot"></div><span style="color:var(--muted);flex:1;font-size:.75rem" id="stext">Ready</span></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Session Stats</div>
+      <div class="stat-mini"><span class="stat-mini-key">Turns</span><span class="stat-mini-val" id="sbTurns">0</span></div>
+      <div class="stat-mini"><span class="stat-mini-key">Tool Calls</span><span class="stat-mini-val" id="sbTools">0</span></div>
+      <div class="stat-mini"><span class="stat-mini-key">~Tokens</span><span class="stat-mini-val" id="sbTok">0</span></div>
+      <div class="stat-mini"><span class="stat-mini-key">Avg Latency</span><span class="stat-mini-val" id="sbLat">—</span></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Quick Prompts</div>
+      <div class="qchip" onclick="fill(this.textContent)">What's your return policy?</div>
+      <div class="qchip" onclick="fill(this.textContent)">Track order ORD-928741</div>
+      <div class="qchip" onclick="fill(this.textContent)">Tell me about your laptops</div>
+      <div class="qchip" onclick="fill(this.textContent)">My phone arrived broken</div>
+      <div class="qchip" onclick="fill(this.textContent)">I want to speak to a human</div>
+    </div>
+    <button class="btn-new" onclick="newChat()"><i class="fas fa-plus"></i> New Conversation</button>
+  </aside>
+
+  <!-- CHAT -->
+  <main class="chat-main">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcomeScreen">
+        <div class="welcome-icon">🤖</div>
+        <div class="welcome-title">TechStore Support Agent</div>
+        <p class="welcome-sub">Powered by LangGraph ReAct + HuggingFace Inference API. I can look up orders, search FAQs, create tickets, and more.</p>
+        <div class="welcome-chips">
+          <div class="wchip" onclick="fill(this.textContent)">What is your return policy?</div>
+          <div class="wchip" onclick="fill(this.textContent)">Where is my order ORD-482910?</div>
+          <div class="wchip" onclick="fill(this.textContent)">Do you have laptops in stock?</div>
+          <div class="wchip" onclick="fill(this.textContent)">Help with a warranty claim</div>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="msgInput" rows="1" placeholder="Type your message…" onkeydown="onKey(event)" oninput="autoResize(this)"></textarea>
+      </div>
+      <button class="btn-send" id="sendBtn" onclick="send()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </main>
+
+  <!-- PANEL -->
+  <aside class="panel">
+    <div class="tab-bar">
+      <div class="tab-btn active" onclick="switchTab('trace',this)">🗺 Trace</div>
+      <div class="tab-btn" onclick="switchTab('tools',this)">🛠 Tools</div>
+      <div class="tab-btn" onclick="switchTab('stats',this)">📈 Stats</div>
+      <div class="tab-btn" onclick="switchTab('history',this)">📜 History</div>
+    </div>
+    <div class="tab-content">
+
+      <div class="tab-panel active" id="tab-trace">
+        <div class="graph-flow" id="graphFlow">
+          <div class="gn pending" id="gn-router"><div class="gn-icon">🔀</div><div class="gn-label">Router</div><div class="gn-dur" id="gd-router">—</div></div>
+          <div class="gn-arrow"><i class="fas fa-chevron-right"></i></div>
+          <div class="gn pending" id="gn-agent"><div class="gn-icon">🧠</div><div class="gn-label">Agent</div><div class="gn-dur" id="gd-agent">—</div></div>
+          <div class="gn-arrow"><i class="fas fa-chevron-right"></i></div>
+          <div class="gn pending" id="gn-tool_executor"><div class="gn-icon">🔧</div><div class="gn-label">Tools</div><div class="gn-dur" id="gd-tool_executor">—</div></div>
+          <div class="gn-arrow"><i class="fas fa-chevron-right"></i></div>
+          <div class="gn pending" id="gn-responder"><div class="gn-icon">📤</div><div class="gn-label">Respond</div><div class="gn-dur" id="gd-responder">—</div></div>
+        </div>
+        <div class="sb-label" style="padding:0 2px;margin-bottom:7px">Node Timeline</div>
+        <div id="traceLog"><div class="empty-state"><div class="empty-icon">🗺️</div>Send a message to start tracing</div></div>
+      </div>
+
+      <div class="tab-panel" id="tab-tools">
+        <div class="sb-label" style="padding:0 2px;margin-bottom:9px">Call Log</div>
+        <div id="toolLog"><div class="empty-state"><div class="empty-icon">🛠️</div>Tool calls will appear here</div></div>
+      </div>
+
+      <div class="tab-panel" id="tab-stats">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-card-val" id="stTurns">0</div><div class="stat-card-lbl">Turns</div></div>
+          <div class="stat-card"><div class="stat-card-val" id="stTools">0</div><div class="stat-card-lbl">Tool Calls</div></div>
+          <div class="stat-card"><div class="stat-card-val" id="stTok">0</div><div class="stat-card-lbl">~Tokens</div></div>
+          <div class="stat-card"><div class="stat-card-val" id="stLat">—</div><div class="stat-card-lbl">Avg Latency</div></div>
+        </div>
+        <div class="chart-lbl">Tool Usage</div>
+        <div class="chart-wrap"><canvas id="toolChart"></canvas></div>
+        <div class="chart-lbl">Response Latency (ms)</div>
+        <div class="chart-wrap"><canvas id="latChart"></canvas></div>
+      </div>
+
+      <div class="tab-panel" id="tab-history">
+        <div id="histLog"><div class="empty-state"><div class="empty-icon">📜</div>Conversation history will appear here</div></div>
+      </div>
+
+    </div>
+  </aside>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
