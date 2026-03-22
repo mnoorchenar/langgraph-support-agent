@@ -10,8 +10,14 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY","lgsa-2025-dev-secret")
 
 AVAILABLE_MODELS = [
-    {"id":"Qwen/Qwen2.5-7B-Instruct","name":"Qwen 2.5 7B (Free-Tier)","badge":"✓ Working"},
+    {"id":"Qwen/Qwen2.5-7B-Instruct","name":"Qwen 2.5 7B","badge":"⚡ Fast & Reliable","priority":1},
+    {"id":"google/gemma-2-9b-it","name":"Gemma 2 9B","badge":"💎 Quality","priority":2},
+    {"id":"mistralai/Mistral-7B-Instruct-v0.2","name":"Mistral 7B","badge":"🌀 Balanced","priority":3},
+    {"id":"TinyLlama/TinyLlama-1.1B-Chat-v1.0","name":"TinyLlama 1.1B","badge":"⚙️ Lightweight","priority":4},
 ]
+
+# Fallback model if all fail
+FALLBACK_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 
 _sessions: dict = {}
 _lock = threading.Lock()

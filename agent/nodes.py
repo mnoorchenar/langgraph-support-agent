@@ -5,7 +5,14 @@ from langchain_core.messages import AIMessage, ToolMessage
 import events as ev
 from agent.state import AgentState
 from agent.tools import execute_tool
-from agent.llm import build_messages, call_llm_streaming, parse_tool_call, parse_final_answer
+from agent.llm import build_messages, call_llm_streaming, call_llm_with_fallback, parse_tool_call, parse_final_answer
+
+# Fallback models if primary fails (free HuggingFace models)
+FALLBACK_MODELS = [
+    "google/gemma-2-9b-it",
+    "mistralai/Mistral-7B-Instruct-v0.2",
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+]
 
 def _ts(): return datetime.utcnow().isoformat() + "Z"
 def _enter(sid, node):
@@ -32,8 +39,17 @@ def agent_node(state: AgentState) -> dict:
             tool_obs.append({"tool":getattr(msg,"name","tool"),"result":msg.content})
     client = InferenceClient(api_key=state["hf_token"], provider="auto")
     messages = build_messages(user_msg, state.get("conversation_history",[]), tool_obs)
-    full_text = call_llm_streaming(client, state["model_name"], messages,
-                                   emit_token=lambda t: ev.emit(sid,{"type":"token","content":t}))
+
+    # Use primary model with fallback to others
+    full_text, used_model = call_llm_with_fallback(
+        client, state["model_name"], FALLBACK_MODELS, messages,
+        emit_token=lambda t: ev.emit(sid,{"type":"token","content":t})
+    )
+
+    # Log which model was used
+    if used_model != state["model_name"]:
+        ev.emit(sid, {"type":"model_switch","from":state["model_name"],"to":used_model})
+
     _exit(sid, "agent", t0)
     itr = state["iteration_count"] + 1
     final = parse_final_answer(full_text)

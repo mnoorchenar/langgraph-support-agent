@@ -103,23 +103,55 @@ def _try_stream(client: InferenceClient, model: str, messages: list,
 
 def call_llm_streaming(client: InferenceClient, model: str, messages: list,
                         emit_token: Callable[[str], None], max_tokens: int = 900) -> str:
+    """Call LLM with two-stage fallback: system role → merged prompt."""
+
     # Attempt 1: standard messages with system role
     try:
         return _try_stream(client, model, messages, emit_token, max_tokens)
     except Exception as e:
         err_str = str(e)
-        # Only retry on bad-request / role errors; surface all others immediately
-        if "Bad request" not in err_str and "400" not in err_str and "role" not in err_str.lower():
-            msg = f"\n[LLM error: {err_str[:180]}]"
+        # Check if it's a model/system role error (retry) or other error (fail fast)
+        is_model_error = ("Bad request" in err_str or "400" in err_str or
+                         "role" in err_str.lower() or "model" in err_str.lower())
+
+        if not is_model_error:
+            msg = f"\n[LLM Error: {err_str[:150]}]"
             emit_token(msg)
             return msg
 
-    # Attempt 2: merge system prompt into first user message as fallback
+    # Attempt 2: merge system prompt into first user message
     emit_token("\n[Retrying with merged prompt…]\n")
     merged = _merge_system_into_user(messages)
     try:
         return _try_stream(client, model, merged, emit_token, max_tokens)
     except Exception as e2:
-        msg = f"\n[LLM error after retry: {str(e2)[:180]}]"
+        msg = f"\n[LLM Error: Model '{model}' failed: {str(e2)[:100]}]"
         emit_token(msg)
         return msg
+
+
+def call_llm_with_fallback(client: InferenceClient, primary_model: str,
+                           fallback_models: list, messages: list,
+                           emit_token: Callable[[str], None], max_tokens: int = 900) -> tuple:
+    """Try primary model, then fallback models. Returns (result, model_used)."""
+
+    models_to_try = [primary_model] + fallback_models
+    last_error = None
+
+    for attempt, model in enumerate(models_to_try):
+        try:
+            emit_token(f"\n[Using model: {model.split('/')[-1]}]\n") if attempt > 0 else None
+            result = call_llm_streaming(client, model, messages, emit_token, max_tokens)
+
+            # If we got a result without error markers, return it
+            if "[LLM Error" not in result:
+                return result, model
+
+        except Exception as e:
+            last_error = str(e)
+            continue
+
+    # All models failed
+    msg = f"\n[All models failed. Last error: {str(last_error)[:100]}]"
+    emit_token(msg)
+    return msg, primary_model
