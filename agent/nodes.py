@@ -30,7 +30,7 @@ def agent_node(state: AgentState) -> dict:
             user_msg = msg.content
         elif cname == "ToolMessage":
             tool_obs.append({"tool":getattr(msg,"name","tool"),"result":msg.content})
-    client = InferenceClient(api_key=state["hf_token"])
+    client = InferenceClient(api_key=state["hf_token"], provider="auto")
     messages = build_messages(user_msg, state.get("conversation_history",[]), tool_obs)
     full_text = call_llm_streaming(client, state["model_name"], messages,
                                    emit_token=lambda t: ev.emit(sid,{"type":"token","content":t}))

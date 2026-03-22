@@ -10,10 +10,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY","lgsa-2025-dev-secret")
 
 AVAILABLE_MODELS = [
-    {"id":"mistralai/Mistral-7B-Instruct-v0.3","name":"Mistral 7B Instruct v0.3","badge":"⚡ Strong"},
-    {"id":"HuggingFaceH4/zephyr-7b-beta","name":"Zephyr 7B Beta","badge":"💬 Chat-tuned"},
-    {"id":"microsoft/Phi-3-mini-4k-instruct","name":"Phi-3 Mini 4K Instruct","badge":"🚀 Fast"},
-    {"id":"meta-llama/Meta-Llama-3-8B-Instruct","name":"Llama 3 8B Instruct","badge":"🦙 Powerful"},
+    {"id":"meta-llama/Meta-Llama-3.1-8B-Instruct","name":"Llama 3.1 8B Instruct","badge":"🦙 Recommended"},
+    {"id":"Qwen/Qwen2.5-7B-Instruct","name":"Qwen 2.5 7B Instruct","badge":"⚡ Fast"},
+    {"id":"mistralai/Mistral-7B-Instruct-v0.3","name":"Mistral 7B Instruct v0.3","badge":"🌀 Mistral"},
+    {"id":"google/gemma-2-9b-it","name":"Gemma 2 9B Instruct","badge":"💎 Google"},
 ]
 
 _sessions: dict = {}
@@ -159,3 +159,4 @@ def api_reset():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=7860, debug=False, threaded=True)
+
