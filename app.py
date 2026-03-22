@@ -10,8 +10,8 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY","lgsa-2025-dev-secret")
 
 AVAILABLE_MODELS = [
-    {"id":"meta-llama/Meta-Llama-3.1-8B-Instruct","name":"Llama 3.1 8B Instruct","badge":"🦙 Recommended"},
-    {"id":"Qwen/Qwen2.5-7B-Instruct","name":"Qwen 2.5 7B Instruct","badge":"⚡ Fast"},
+    {"id":"Qwen/Qwen2.5-7B-Instruct","name":"Qwen 2.5 7B Instruct","badge":"⚡ Recommended"},
+    {"id":"meta-llama/Meta-Llama-3.1-8B-Instruct","name":"Llama 3.1 8B Instruct","badge":"🦙 Advanced"},
     {"id":"mistralai/Mistral-7B-Instruct-v0.3","name":"Mistral 7B Instruct v0.3","badge":"🌀 Mistral"},
     {"id":"google/gemma-2-9b-it","name":"Gemma 2 9B Instruct","badge":"💎 Google"},
 ]
@@ -159,4 +159,3 @@ def api_reset():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=7860, debug=False, threaded=True)
-
