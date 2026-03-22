@@ -26,16 +26,38 @@ Rules:
 - After receiving tool results, always write a Final Answer
 - Maximum 4 tool calls per turn"""
 
+
+def _merge_system_into_user(messages: list) -> list:
+    """Fallback: prepend system prompt into the first user message for models
+    that reject the system role (e.g. Mistral v0.3 on the free HF tier)."""
+    out = []
+    sys_content = ""
+    for m in messages:
+        if m["role"] == "system":
+            sys_content = m["content"]
+        else:
+            out.append(m)
+    if sys_content and out:
+        first_user_idx = next((i for i, m in enumerate(out) if m["role"] == "user"), None)
+        if first_user_idx is not None:
+            out[first_user_idx] = {
+                "role": "user",
+                "content": f"[Instructions]\n{sys_content}\n\n[Customer message]\n{out[first_user_idx]['content']}"
+            }
+    return out
+
+
 def build_messages(user_msg: str, history: list, tool_obs: list) -> list:
-    msgs = [{"role":"system","content":SYSTEM_PROMPT}]
+    msgs = [{"role": "system", "content": SYSTEM_PROMPT}]
     for m in history[-12:]:
-        if m.get("role") in ("user","assistant"):
-            msgs.append({"role":m["role"],"content":m["content"]})
-    msgs.append({"role":"user","content":user_msg})
+        if m.get("role") in ("user", "assistant"):
+            msgs.append({"role": m["role"], "content": m["content"]})
+    msgs.append({"role": "user", "content": user_msg})
     if tool_obs:
         obs = "\n\n".join(f"[{o['tool']} result]\n{o['result']}" for o in tool_obs)
-        msgs.append({"role":"user","content":f"Tool results:\n{obs}\n\nNow write your Final Answer."})
+        msgs.append({"role": "user", "content": f"Tool results:\n{obs}\n\nNow write your Final Answer."})
     return msgs
+
 
 def parse_tool_call(text: str) -> Optional[tuple]:
     action = re.search(r"Action:\s*(\w+)", text, re.IGNORECASE)
@@ -57,24 +79,47 @@ def parse_tool_call(text: str) -> Optional[tuple]:
         return name, {"query": r}
     return name, {}
 
+
 def parse_final_answer(text: str) -> Optional[str]:
     m = re.search(r"Final Answer:\s*(.+)", text, re.DOTALL | re.IGNORECASE)
     if m:
         return re.sub(r"\s*---\s*$", "", m.group(1)).strip()
     return None
 
+
+def _try_stream(client: InferenceClient, model: str, messages: list,
+                emit_token: Callable[[str], None], max_tokens: int) -> str:
+    full = ""
+    for chunk in client.chat_completion(
+        messages=messages, model=model,
+        max_tokens=max_tokens, temperature=0.25, stream=True
+    ):
+        delta = chunk.choices[0].delta.content
+        if delta:
+            full += delta
+            emit_token(delta)
+    return full
+
+
 def call_llm_streaming(client: InferenceClient, model: str, messages: list,
                         emit_token: Callable[[str], None], max_tokens: int = 900) -> str:
-    full = ""
+    # Attempt 1: standard messages with system role
     try:
-        for chunk in client.chat_completion(messages=messages, model=model,
-                                            max_tokens=max_tokens, temperature=0.25, stream=True):
-            delta = chunk.choices[0].delta.content
-            if delta:
-                full += delta
-                emit_token(delta)
+        return _try_stream(client, model, messages, emit_token, max_tokens)
     except Exception as e:
-        msg = f"\n[LLM error: {str(e)[:120]}]"
-        full += msg
+        err_str = str(e)
+        # Only retry on bad-request / role errors; surface all others immediately
+        if "Bad request" not in err_str and "400" not in err_str and "role" not in err_str.lower():
+            msg = f"\n[LLM error: {err_str[:180]}]"
+            emit_token(msg)
+            return msg
+
+    # Attempt 2: merge system prompt into first user message as fallback
+    emit_token("\n[Retrying with merged prompt…]\n")
+    merged = _merge_system_into_user(messages)
+    try:
+        return _try_stream(client, model, merged, emit_token, max_tokens)
+    except Exception as e2:
+        msg = f"\n[LLM error after retry: {str(e2)[:180]}]"
         emit_token(msg)
-    return full
+        return msg
