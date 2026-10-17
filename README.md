@@ -16,14 +16,38 @@ sdk: docker
 [![Flask](https://img.shields.io/badge/Flask-3.x-4f46e5?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2.x-06b6d4?style=for-the-badge)](https://langchain-ai.github.io/langgraph/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-3b82f6?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-Spaces-ffcc00?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/mnoorchenar/spaces)
 [![Status](https://img.shields.io/badge/Status-Active-22c55e?style=for-the-badge)](#)
 
+<br/>
+
+[![Live Demo](https://img.shields.io/badge/%E2%96%B6_Live_Demo-Hugging_Face_Space-ffcc00?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/spaces/mnoorchenar/langgraph-support-agent)
+[![Source Code](https://img.shields.io/badge/Source_Code-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mnoorchenar/langgraph-support-agent)
+
+<br/>
+
 **🛍️ TechStore Support Agent** — An intelligent multi-turn customer support chatbot built with LangGraph's ReAct architecture. Powered by free HuggingFace models (Qwen, Gemma, Mistral, TinyLlama), it processes 5 support tools in real-time with token streaming via Server-Sent Events.
+
+<br/>
 
 ---
 
 </div>
+
+## Table of Contents
+
+- [Features](#-features)
+- [Architecture](#️-architecture)
+- [Getting Started](#-getting-started)
+- [Docker](#-docker)
+- [Dashboard Features](#-dashboard-features)
+- [ML Models](#-ml-models)
+- [Project Structure](#-project-structure)
+- [Author](#-author)
+- [Contributing](#-contributing)
+- [Disclaimer](#️-disclaimer)
+- [License](#-license)
+
+---
 
 ## ✨ Features
 
@@ -36,6 +60,8 @@ sdk: docker
   <tr><td>🔒 <b>Secure by Design</b></td><td>HF_TOKEN via Space secrets (never in code). Session-based state isolation. In-memory per request.</td></tr>
   <tr><td>🐳 <b>Docker Ready</b></td><td>Containerized with gunicorn gthread workers. HuggingFace Spaces compatible (uid 1000, port 7860)</td></tr>
 </table>
+
+---
 
 ## 🏗️ Architecture
 
@@ -56,6 +82,8 @@ Browser (SSE) ◀──▶ Flask + gunicorn
          (with automatic fallback chain)
 ```
 
+---
+
 ## 🚀 Getting Started
 
 ```bash
@@ -67,6 +95,8 @@ cp .env.example .env          # add your HF_TOKEN
 python app.py                 # open http://localhost:7860
 ```
 
+---
+
 ## 🐳 Docker
 
 ```bash
@@ -75,6 +105,8 @@ docker run -p 7860:7860 -e HF_TOKEN=hf_your_token_here langgraph-support-agent
 ```
 
 For HuggingFace Spaces: push this repo and add `HF_TOKEN` as a Space secret under **Settings → Variables and Secrets**.
+
+---
 
 ## 📊 Dashboard Features
 
@@ -86,6 +118,8 @@ For HuggingFace Spaces: push this repo and add `HF_TOKEN` as a Space secret unde
 | 🛠️ **Tool Logger** | Expandable log showing every tool call, input, output, and latency | ✅ Live |
 | 📈 **Session Stats** | Real-time analytics: turn count, tool usage, latency, token estimate | ✅ Live |
 | 📜 **Chat History** | Full conversation history with timestamps and model attribution | ✅ Live |
+
+---
 
 ## 🧠 ML Models
 
@@ -112,45 +146,105 @@ agent_config = {
 }
 ```
 
+---
+
 ## 📁 Project Structure
 
 ```
 langgraph-support-agent/
-├── app.py                    # Flask app, SSE endpoints, session management
-├── events.py                 # Thread-safe per-session SSE event queue
-├── agent/
-│   ├── state.py              # AgentState TypedDict for LangGraph
-│   ├── tools.py              # 5 tool functions + execute_tool dispatcher
-│   ├── llm.py                # HF InferenceClient wrapper, ReAct prompt, parsers
-│   ├── nodes.py              # Router, Agent, ToolExecutor, Responder node functions
-│   └── graph.py              # StateGraph builder with conditional routing
-├── data/
-│   └── faq.json              # 15-entry FAQ knowledge base
-├── templates/
-│   └── index.html            # Single-page UI, 4-panel layout, SSE client
-├── static/
-│   └── app.js                # SSE client, Chart.js, node trace UI, analytics
-├── requirements.txt
-├── Dockerfile
-├── .env.example
-└── docs/
-    └── project-template.html # Portfolio page
+│
+├── 📂 agent/
+│   ├── __init__.py
+│   ├── graph.py
+│   ├── llm.py
+│   ├── nodes.py
+│   ├── state.py
+│   └── tools.py
+├── 📂 data/
+│   └── faq.json
+├── 📂 docs/
+│   └── project-template.html
+├── 📂 static/                    # CSS, JavaScript & assets
+│   └── app.js
+├── 📂 templates/                 # HTML templates
+│   └── index.html
+├── 📄 .env.example               # Environment variable template
+├── 📄 ARCHITECTURE.md
+├── 📄 Dockerfile                 # Container definition (port 7860)
+├── 📄 MODELS.md
+├── 📄 UPDATES_CHECKLIST.md
+├── 📄 app.py                     # Application entry point
+├── 📄 code.txt
+├── 📄 events.py
+└── 📄 requirements.txt           # Python dependencies
 ```
+
+---
 
 ## 👨‍💻 Author
 
 <div align="center">
-<img src="https://avatars.githubusercontent.com/mnoorchenar" width="100" style="border-radius:50%"/>
 
-**Mohammad Noorchenarboo** — Data Scientist | AI Researcher | Biostatistician
+<table>
+<tr>
+<td align="center" width="100%">
 
-📍 Ontario, Canada · [LinkedIn](https://www.linkedin.com/in/mnoorchenar) · [Website](https://mnoorchenar.github.io/) · [HuggingFace](https://huggingface.co/mnoorchenar/spaces) · [GitHub](https://github.com/mnoorchenar)
+<img src="https://avatars.githubusercontent.com/mnoorchenar" width="120" style="border-radius:50%; border: 3px solid #4f46e5;" alt="Mohammad Noorchenarboo"/>
+
+<h3>Mohammad Noorchenarboo</h3>
+
+<code>Data Scientist</code> &nbsp;|&nbsp; <code>AI Researcher</code> &nbsp;|&nbsp; <code>Biostatistician</code>
+
+📍 &nbsp;Ontario, Canada &nbsp;&nbsp; 📧 &nbsp;[mohammadnoorchenarboo@gmail.com](mailto:mohammadnoorchenarboo@gmail.com)
+
+──────────────────────────────────────
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mnoorchenar)&nbsp;
+[![Personal Site](https://img.shields.io/badge/Website-mnoorchenar.github.io-4f46e5?style=for-the-badge&logo=githubpages&logoColor=white)](https://mnoorchenar.github.io/)&nbsp;
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-ffcc00?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/mnoorchenar)&nbsp;
+[![Google Scholar](https://img.shields.io/badge/Scholar-4285F4?style=for-the-badge&logo=googlescholar&logoColor=white)](https://scholar.google.ca/citations?user=nn_Toq0AAAAJ&hl=en)&nbsp;
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mnoorchenar)
+
+</td>
+</tr>
+</table>
+
 </div>
 
-## Disclaimer
+---
 
-This project is developed strictly for educational and research purposes. All datasets are synthetically generated — no real user data is stored. Provided "as is" without warranty of any kind.
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. **Push** to the branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
+
+---
+
+## ⚠️ Disclaimer
+
+> [!WARNING]
+> This project is developed strictly for educational and research purposes. All datasets are synthetically generated — no real user data is stored. Provided "as is" without warranty of any kind.
+
+---
 
 ## 📜 License
 
-MIT License. See `LICENSE` for details.
+Distributed under the **MIT License**.
+
+---
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:4f46e5,100:06b6d4&height=120&section=footer&text=Made%20with%20%E2%9D%A4%EF%B8%8F%20by%20Mohammad%20Noorchenarboo&fontColor=ffffff&fontSize=18&fontAlignY=80" width="100%"/>
+
+[![GitHub Stars](https://img.shields.io/github/stars/mnoorchenar/langgraph-support-agent?style=social)](https://github.com/mnoorchenar/langgraph-support-agent/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/mnoorchenar/langgraph-support-agent?style=social)](https://github.com/mnoorchenar/langgraph-support-agent/fork)
+
+<sub>The name "TechStore Support Agent" is used purely for academic and research purposes. Any similarity to existing product names or trademarks is entirely coincidental. This project has no affiliation with any commercial entity.</sub>
+
+</div>
