@@ -7,8 +7,8 @@ sdk: docker
 
 <div align="center">
 
-<h1>🤖 LangGraph Support Agent Studio</h1>
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=4F8EF7&center=true&vCenter=true&width=700&lines=Multi-turn+Customer+Support+Agent+powered+by+LangGraph;5+AI+Tools+%C2%B7+4+HuggingFace+Models+%C2%B7+ReAct+Architecture;Live+Graph+Tracing+%C2%B7+Tool+Logs+%C2%B7+Session+Analytics" alt="Typing SVG"/>
+<h1>🛍️ TechStore Support Agent</h1>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=4F8EF7&center=true&vCenter=true&width=700&lines=AI-Powered+Customer+Support+Agent;Built+with+LangGraph+ReAct+Pattern;5+Tools+%C2%B7+4+Free+HuggingFace+Models+%C2%B7+Real-time+Streaming" alt="Typing SVG"/>
 
 <br/>
 
@@ -19,7 +19,7 @@ sdk: docker
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Spaces-ffcc00?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/mnoorchenar/spaces)
 [![Status](https://img.shields.io/badge/Status-Active-22c55e?style=for-the-badge)](#)
 
-**🤖 LangGraph Support Agent Studio** — A production-grade multi-turn customer support agent built with LangGraph's ReAct architecture, powered entirely by free HuggingFace Inference API models, with live graph tracing, tool call logging, and session analytics streamed in real time via SSE.
+**🛍️ TechStore Support Agent** — An intelligent multi-turn customer support chatbot built with LangGraph's ReAct architecture. Powered by free HuggingFace models (Qwen, Gemma, Mistral, TinyLlama), it processes 5 support tools in real-time with token streaming via Server-Sent Events.
 
 ---
 
@@ -28,12 +28,13 @@ sdk: docker
 ## ✨ Features
 
 <table>
-  <tr><td>🧠 <b>ReAct Agent Loop</b></td><td>LangGraph StateGraph orchestrates Thought → Action → Observation with up to 4 tool calls per turn, parsed from free-tier HuggingFace model output</td></tr>
-  <tr><td>🔧 <b>5 Live Tools</b></td><td>search_faq, check_order_status, create_ticket, get_product_info, escalate_to_human — each with real logic and mock data</td></tr>
-  <tr><td>🗺️ <b>Live Graph Trace</b></td><td>Animated node visualizer showing Router → Agent → Tool Executor → Responder with per-node timing via SSE</td></tr>
-  <tr><td>📡 <b>Token Streaming</b></td><td>Server-Sent Events stream LLM tokens and graph events simultaneously, updating chat, trace, and tool log in real time</td></tr>
-  <tr><td>🔒 <b>Secure by Design</b></td><td>HF_TOKEN injected via HuggingFace Space secrets, never committed to source. All state is in-memory per session</td></tr>
-  <tr><td>🐳 <b>Containerized Deployment</b></td><td>Docker-first with gunicorn gthread workers, HuggingFace Spaces-compatible (uid 1000, port 7860)</td></tr>
+  <tr><td>🧠 <b>ReAct Architecture</b></td><td>LangGraph StateGraph orchestrates Thought → Action → Observation with up to 4 tool calls per turn. Parsed from free HuggingFace model output.</td></tr>
+  <tr><td>🔧 <b>5 Support Tools</b></td><td><code>search_faq</code>, <code>check_order_status</code>, <code>create_ticket</code>, <code>get_product_info</code>, <code>escalate_to_human</code> — each with real execution logic</td></tr>
+  <tr><td>🤖 <b>4 LLM Models</b></td><td>Qwen 2.5 · Gemma 2 · Mistral 7B · TinyLlama with smart auto-fallback. Switch mid-session via dropdown.</td></tr>
+  <tr><td>📡 <b>Real-time Streaming</b></td><td>Server-Sent Events (SSE) stream tokens, tool calls, and graph events simultaneously for live UI updates</td></tr>
+  <tr><td>🗺️ <b>Execution Tracing</b></td><td>Live graph visualization showing Router → Agent → Tool Executor → Responder with per-node timing</td></tr>
+  <tr><td>🔒 <b>Secure by Design</b></td><td>HF_TOKEN via Space secrets (never in code). Session-based state isolation. In-memory per request.</td></tr>
+  <tr><td>🐳 <b>Docker Ready</b></td><td>Containerized with gunicorn gthread workers. HuggingFace Spaces compatible (uid 1000, port 7860)</td></tr>
 </table>
 
 ## 🏗️ Architecture
@@ -51,7 +52,8 @@ Browser (SSE) ◀──▶ Flask + gunicorn
                   └──────────────────┘
                          │
                 HuggingFace Inference API
-          Mistral 7B · Zephyr 7B · Phi-3 · Llama 3
+    Qwen 2.5 · Gemma 2 9B · Mistral 7B · TinyLlama
+         (with automatic fallback chain)
 ```
 
 ## 🚀 Getting Started
@@ -74,30 +76,40 @@ docker run -p 7860:7860 -e HF_TOKEN=hf_your_token_here langgraph-support-agent
 
 For HuggingFace Spaces: push this repo and add `HF_TOKEN` as a Space secret under **Settings → Variables and Secrets**.
 
-## 📊 Dashboard Modules
+## 📊 Dashboard Features
 
-| Module | Description | Status |
-|--------|-------------|--------|
-| 💬 Chat Interface | Multi-turn streaming chat with SSE token delivery | ✅ Live |
-| 🗺️ Graph Trace | Animated LangGraph node visualizer with per-node timing | ✅ Live |
-| 🛠️ Tool Call Log | Expandable log of every tool invocation with input/output | ✅ Live |
-| 📈 Session Analytics | Chart.js charts — tool usage frequency and latency history | ✅ Live |
-| 📜 Conversation History | Full chat history with timestamps and estimated token counts | ✅ Live |
-| 🤖 Model Selector | Switch between 4 HuggingFace-hosted LLMs mid-session | ✅ Live |
+| Feature | Description | Status |
+|---------|-------------|--------|
+| 💬 **Chat Interface** | Multi-turn conversation with real-time token streaming | ✅ Live |
+| 🤖 **Model Switcher** | Dropdown to switch between Qwen, Gemma, Mistral, TinyLlama | ✅ Live |
+| 🗺️ **Graph Trace** | Animated visualization of ReAct loop (Router → Agent → Tools → Response) | ✅ Live |
+| 🛠️ **Tool Logger** | Expandable log showing every tool call, input, output, and latency | ✅ Live |
+| 📈 **Session Stats** | Real-time analytics: turn count, tool usage, latency, token estimate | ✅ Live |
+| 📜 **Chat History** | Full conversation history with timestamps and model attribution | ✅ Live |
 
 ## 🧠 ML Models
 
+The agent supports **4 free HuggingFace models** with smart fallback:
+
+| Model | Speed | Quality | Best For |
+|-------|-------|---------|----------|
+| **Qwen 2.5 7B** | ⚡⚡⚡ Fast | ⭐⭐⭐⭐⭐ | Production (default) |
+| **Gemma 2 9B** | ⚡⚡⚡ Fast | ⭐⭐⭐⭐⭐ | High-quality responses |
+| **Mistral 7B** | ⚡⚡⚡ Fast | ⭐⭐⭐⭐ | Balanced option |
+| **TinyLlama 1.1B** | ⚡⚡⚡⚡⚡ Ultra-fast | ⭐⭐⭐ | Testing & learning |
+
+**Fallback chain:** Qwen → Gemma → Mistral → TinyLlama
+
 ```python
-models = {
-    "mistral":  "mistralai/Mistral-7B-Instruct-v0.3",
-    "zephyr":   "HuggingFaceH4/zephyr-7b-beta",
-    "phi3":     "microsoft/Phi-3-mini-4k-instruct",
-    "llama3":   "meta-llama/Meta-Llama-3-8B-Instruct",
+agent_config = {
+    "type":              "ReAct (Reason + Act)",
+    "primary_model":     "Qwen/Qwen2.5-7B-Instruct",
+    "fallback_models":   ["google/gemma-2-9b-it", "mistralai/Mistral-7B-Instruct-v0.2", "TinyLlama/TinyLlama-1.1B-Chat-v1.0"],
+    "tools":             5,
+    "max_tool_calls":    4,
+    "streaming":         True,  # token-level SSE via InferenceClient
+    "auto_fallback":     True,  # switches models if primary fails
 }
-agent_type   = "ReAct (Reason + Act)"
-tool_count   = 5
-max_iters    = 4
-streaming    = True   # token-level SSE via InferenceClient
 ```
 
 ## 📁 Project Structure
